@@ -2,6 +2,10 @@
 
 一个用于生成口播话术、拆解 AI 概念的本地网页工作台。把脑子里模糊的想法，变成嘴里说得清楚的话。
 
+在线体验：[lubiny0601-spec.github.io/koubo-workbench](https://lubiny0601-spec.github.io/koubo-workbench/)
+
+![口播工作台预览](assets/preview.png)
+
 ## 功能
 
 - **话术生成**：输入关键词或粘贴素材，选择 15 秒 / 60 秒 / 3-5 分钟三档时长，生成带分段结构与表演指导（停顿、重音、语气、情绪）的口播脚本。
