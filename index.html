@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="antialiased">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>口播工作台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Plus Jakarta Sans','system-ui','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+<style>
+html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:#08090F;color:#E2E8F0;overflow-x:hidden;}
+.font-mono{font-family:'JetBrains Mono',monospace;}
+.view{display:none;}.view.active{display:block;}
+.aurora{position:fixed;inset:0;z-index:-1;overflow:hidden;background:#08090F;}
+.aurora-blob{position:absolute;border-radius:50%;filter:blur(120px);opacity:0.18;}
+.aurora-blob-1{width:500px;height:500px;background:#6366F1;top:-150px;left:-100px;animation:aurora1 25s ease-in-out infinite;}
+.aurora-blob-2{width:600px;height:600px;background:#EC4899;bottom:-200px;right:-150px;animation:aurora2 30s ease-in-out infinite;}
+.aurora-blob-3{width:400px;height:400px;background:#14B8A6;top:35%;left:45%;animation:aurora3 20s ease-in-out infinite;}
+@keyframes aurora1{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(150px,80px) scale(1.2);}}
+@keyframes aurora2{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(-100px,-120px) scale(0.8);}}
+@keyframes aurora3{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(-80px,60px) scale(1.15);}66%{transform:translate(100px,-80px) scale(0.85);}}
+.glass-sidebar{background:rgba(10,10,18,0.65);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-right:1px solid rgba(255,255,255,0.06);}
+.glass-header{background:rgba(10,10,18,0.65);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid rgba(255,255,255,0.06);}
+.glass{background:rgba(255,255,255,0.035);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.07);box-shadow:0 4px 24px rgba(0,0,0,0.15);}
+.glass-hover{transition:border-color 200ms ease-out,box-shadow 200ms ease-out,transform 200ms ease-out;}
+.glass-hover:hover{border-color:rgba(45,212,191,0.25);box-shadow:0 8px 32px rgba(0,0,0,0.2),0 0 0 1px rgba(45,212,191,0.1);}
+.logo-icon{background:linear-gradient(135deg,#2DD4BF,#06B6D4);box-shadow:0 4px 12px rgba(45,212,191,0.35);}
+.gradient-text{background:linear-gradient(135deg,#2DD4BF 0%,#06B6D4 40%,#818CF8 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;}
+.nav-item{color:#64748B;transition:color 200ms ease-out,background-color 200ms ease-out;}
+.nav-item:hover{background:rgba(255,255,255,0.04);color:#CBD5E1;}
+.nav-item.active{background:rgba(45,212,191,0.08);color:#2DD4BF;}
+.nav-item.active svg{color:#2DD4BF !important;}
+.seg-btn{transition:color 150ms ease-out,background-color 150ms ease-out,box-shadow 150ms ease-out;color:#64748B;}
+.seg-btn:hover:not(.seg-active){color:#CBD5E1;}
+.seg-active{background:rgba(255,255,255,0.08);color:#2DD4BF;box-shadow:0 0 12px rgba(45,212,191,0.08),0 1px 2px rgba(0,0,0,0.1);}
+.btn-cta{background:linear-gradient(135deg,#F97316 0%,#EC4899 100%);box-shadow:0 4px 16px rgba(236,72,153,0.25);color:#fff;transition:background 150ms ease-out,box-shadow 150ms ease-out,transform 150ms ease-out;}
+.btn-cta:hover{background:linear-gradient(135deg,#EA580C 0%,#DB2777 100%);box-shadow:0 6px 20px rgba(236,72,153,0.35);}
+.btn-cta:active{scale:0.96;}
+.btn-cta:disabled{opacity:0.3;cursor:not-allowed;background:linear-gradient(135deg,#F97316 0%,#EC4899 100%);box-shadow:none;}
+.btn-cta:disabled:active{scale:1;}
+.btn-sec{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#CBD5E1;transition:background-color 150ms ease-out,border-color 150ms ease-out,transform 150ms ease-out;}
+.btn-sec:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.18);}
+.btn-sec:active{scale:0.96;}
+.btn-chip{background:rgba(255,255,255,0.05);color:#94A3B8;transition:background-color 150ms ease-out,color 150ms ease-out,transform 150ms ease-out;}
+.btn-chip:hover{background:rgba(45,212,191,0.1);color:#2DD4BF;}
+.btn-chip:active{scale:0.96;}
+.input-field{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#F1F5F9;transition:border-color 150ms ease-out,box-shadow 150ms ease-out,background-color 150ms ease-out;}
+.input-field::placeholder{color:#475569;}
+.input-field:focus{outline:none;border-color:#2DD4BF;box-shadow:0 0 0 3px rgba(45,212,191,0.12);background:rgba(255,255,255,0.06);}
+.marker{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;padding:2px 6px;border-radius:5px;white-space:nowrap;}
+.marker-tone{background:rgba(45,212,191,0.15);color:#5EEAD4;}
+.marker-pause{background:rgba(251,191,36,0.15);color:#FCD34D;}
+.marker-emphasis{background:rgba(251,113,133,0.15);color:#FB7185;}
+.marker-emotion{background:rgba(129,140,248,0.15);color:#A5B4FC;}
+.segment-bar{width:3px;border-radius:2px;flex-shrink:0;}
+.bar-orange{background:linear-gradient(180deg,#F97316,#EC4899);}
+.bar-teal{background:linear-gradient(180deg,#2DD4BF,#06B6D4);}
+.bar-slate{background:rgba(255,255,255,0.15);}
+.badge-orange{background:rgba(249,115,22,0.15);color:#FB923C;}
+.badge-teal{background:rgba(45,212,191,0.15);color:#2DD4BF;}
+.badge-slate{background:rgba(255,255,255,0.08);color:#CBD5E1;}
+.skeleton{background:linear-gradient(90deg,rgba(255,255,255,0.03) 25%,rgba(255,255,255,0.06) 50%,rgba(255,255,255,0.03) 75%);background-size:936px 100%;animation:shimmer 1.5s infinite linear;border-radius:6px;}
+@keyframes shimmer{0%{background-position:-468px 0;}100%{background-position:468px 0;}}
+@keyframes segEnter{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.seg-enter{opacity:0;animation:segEnter 300ms ease-out forwards;}
+.seg-enter:nth-child(1){animation-delay:0ms;}.seg-enter:nth-child(2){animation-delay:80ms;}.seg-enter:nth-child(3){animation-delay:160ms;}.seg-enter:nth-child(4){animation-delay:240ms;}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #2DD4BF;outline-offset:2px;}
+.seg-divider{border-bottom:1px solid rgba(255,255,255,0.05);}
+.seg-divider:last-child{border-bottom:none;}
+@media(prefers-reduced-motion:reduce){.skeleton{animation:none;}.seg-btn{transition:none;}.seg-enter{animation:none;opacity:1;}.aurora-blob{animation:none;}}
+</style>
+</head>
+<body class="min-h-screen" onkeydown="handleGlobalKey(event)">
+<div class="aurora" aria-hidden="true"><div class="aurora-blob aurora-blob-1"></div><div class="aurora-blob aurora-blob-2"></div><div class="aurora-blob aurora-blob-3"></div></div>
+<div class="flex min-h-screen relative">
+<aside class="glass-sidebar hidden lg:flex flex-col w-60 shrink-0">
+<div class="flex items-center gap-2.5 px-5 h-16 border-b border-white/5"><div class="w-8 h-8 rounded-lg logo-icon flex items-center justify-center shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg></div><span class="font-bold text-[15px] text-slate-100">口播工作台</span></div>
+<nav class="flex-1 p-3 space-y-1">
+<button onclick="switchView('home')" id="nav-home" aria-label="首页" class="nav-item active w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-semibold min-h-[44px]"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-500"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>首页</span></button>
+<button onclick="switchView('script')" id="nav-script" aria-label="话术生成" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-semibold min-h-[44px]"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-500"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" x2="16" y1="13" y2="13"/><line x1="8" x2="16" y1="17" y2="17"/><line x1="8" x2="12" y1="9" y2="9"/></svg><span>话术生成</span></button>
+<button onclick="switchView('concept')" id="nav-concept" aria-label="概念解释器" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-semibold min-h-[44px]"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-500"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg><span>概念解释器</span></button>
+<nav class="flex-1"></nav>
+</nav>
+<div id="settings-panel" class="hidden border-t border-white/5 p-3 space-y-3">
+<div><label class="block text-[12px] font-semibold text-slate-400 mb-1.5">API 地址</label><input type="text" id="api-url" placeholder="https://api.deepseek.com/v1/chat/completions" class="input-field w-full h-10 px-3 text-[12px] rounded-lg" /></div>
+<div><label class="block text-[12px] font-semibold text-slate-400 mb-1.5">API 密钥</label><input type="password" id="api-key" placeholder="sk-..." class="input-field w-full h-10 px-3 text-[12px] rounded-lg" /></div>
+<div><label class="block text-[12px] font-semibold text-slate-400 mb-1.5">模型名称</label><input type="text" id="api-model" placeholder="deepseek-chat" class="input-field w-full h-10 px-3 text-[12px] rounded-lg" /></div>
+<button onclick="saveSettings()" class="btn-cta w-full h-10 text-[13px] font-semibold rounded-lg flex items-center justify-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>保存设置</span></button>
+<div id="settings-status" class="text-[12px] text-slate-500 text-center"></div>
+</div>
+<div class="p-3 border-t border-white/5"><div class="px-3 py-2 text-xs text-slate-500 space-y-1"><p class="font-semibold text-slate-400">目标：脱稿讲 3 分钟</p><p>每周 2-3 条 · 抖音优先</p></div><button onclick="toggleSettings()" class="w-full mt-2 flex items-center gap-2 px-3 py-2 rounded-lg text-[13px] font-semibold text-slate-500 hover:bg-white/5 hover:text-slate-300 transition-colors min-h-[44px]"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m11-7h-6m-6 0H1m17-9l-4.2 4.2m-5.6 5.6L4 20m16 0l-4.2-4.2m-5.6-5.6L4 4"/></svg><span>AI 设置</span></button></div>
+</aside>
+<div class="flex-1 flex flex-col min-w-0">
+<header class="glass-header lg:hidden flex items-center justify-between px-4 min-h-[56px] sticky top-0 z-50"><div class="flex items-center gap-2 shrink-0"><div class="w-7 h-7 rounded-lg logo-icon flex items-center justify-center shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg></div></div><button onclick="toggleSettings()" class="btn-sec h-9 w-9 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m11-7h-6m-6 0H1m17-9l-4.2 4.2m-5.6 5.6L4 20m16 0l-4.2-4.2m-5.6-5.6L4 4"/></svg></button><div class="flex items-center gap-0.5 bg-white/5 rounded-lg p-1"><button onclick="switchView('home')" class="nav-mobile seg-btn seg-active px-3 py-2 rounded-md text-sm font-semibold min-h-[44px]" data-view="home">首页</button><button onclick="switchView('script')" class="nav-mobile seg-btn px-3 py-2 rounded-md text-sm font-semibold min-h-[44px]" data-view="script">话术</button><button onclick="switchView('concept')" class="nav-mobile seg-btn px-3 py-2 rounded-md text-sm font-semibold min-h-[44px]" data-view="concept">概念</button></div></header>
+<main id="view-home" class="view active flex-1 p-4 sm:p-6 lg:p-8"><div class="max-w-3xl mx-auto lg:mx-0"><div class="mb-8"><h1 class="text-[28px] font-extrabold gradient-text text-balance leading-tight">口播工作台</h1><p class="mt-2 text-[15px] text-slate-400 leading-relaxed text-pretty">把脑子里模糊的想法，变成嘴里说得清楚的话。先选一个工具开始。</p></div><div class="grid sm:grid-cols-2 gap-4"><button onclick="switchView('script')" aria-label="进入话术生成" class="group text-left glass glass-hover rounded-[10px] p-5 active:scale-[0.96]"><div class="w-10 h-10 rounded-lg flex items-center justify-center mb-4" style="background:rgba(45,212,191,0.1);"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2DD4BF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" x2="16" y1="13" y2="13"/><line x1="8" x2="16" y1="17" y2="17"/><line x1="8" x2="12" y1="9" y2="9"/></svg></div><h2 class="text-[14px] font-semibold text-slate-100 mb-1 text-balance">话术生成</h2><p class="text-[13px] text-slate-400 leading-relaxed text-pretty">输入关键词或粘贴素材，生成分段口播脚本，带停顿、重音、语气标记。</p><div class="mt-4 flex items-center gap-1.5 text-[13px] font-semibold text-teal-400 group-hover:gap-2.5 transition-[gap] duration-200"><span>开始生成</span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" x2="19" y1="12" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div></button><button onclick="switchView('concept')" aria-label="进入概念解释器" class="group text-left glass glass-hover rounded-[10px] p-5 active:scale-[0.96]"><div class="w-10 h-10 rounded-lg flex items-center justify-center mb-4" style="background:rgba(236,72,153,0.1);"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#EC4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg></div><h2 class="text-[14px] font-semibold text-slate-100 mb-1 text-balance">概念解释器</h2><p class="text-[13px] text-slate-400 leading-relaxed text-pretty">输入一个你常用但讲不清楚的AI概念，拆成三层：是什么、为什么用、背后逻辑。</p><div class="mt-4 flex items-center gap-1.5 text-[13px] font-semibold text-teal-400 group-hover:gap-2.5 transition-[gap] duration-200"><span>开始解释</span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" x2="19" y1="12" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div></button></div><div class="mt-8 glass rounded-[10px] p-5"><h3 class="text-[14px] font-semibold text-slate-200 mb-4">工作流程</h3><div class="space-y-3"><div class="flex items-start gap-3"><div class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-[12px] font-bold bg-teal-500/10 text-teal-400">1</div><div><p class="text-[14px] font-semibold text-slate-200">选题输入</p><p class="text-[13px] text-slate-400 mt-0.5 text-pretty leading-relaxed">关键词模式：输入一个AI概念或工具名称。素材模式：粘贴文章或视频文案。</p></div></div><div class="flex items-start gap-3"><div class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-[12px] font-bold bg-teal-500/10 text-teal-400">2</div><div><p class="text-[14px] font-semibold text-slate-200">选择时长</p><p class="text-[13px] text-slate-400 mt-0.5 text-pretty leading-relaxed">15秒钩子练抓注意力，60秒短口播练节奏，3-5分钟深度讲解练结构。</p></div></div><div class="flex items-start gap-3"><div class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-[12px] font-bold bg-teal-500/10 text-teal-400">3</div><div><p class="text-[14px] font-semibold text-slate-200">生成脚本</p><p class="text-[13px] text-slate-400 mt-0.5 text-pretty leading-relaxed">获得分段脚本，每段标注功能和表演指导（停顿/重音/语气/情绪）。</p></div></div><div class="flex items-start gap-3"><div class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-[12px] font-bold bg-teal-500/10 text-teal-400">4</div><div><p class="text-[14px] font-semibold text-slate-200">录制发布</p><p class="text-[13px] text-slate-400 mt-0.5 text-pretty leading-relaxed">照脚本练习录制，用剪映完成视频制作，发布到抖音。</p></div></div></div></div></div></main>
+<main id="view-script" class="view flex-1 p-4 sm:p-6 lg:p-8"><div class="max-w-3xl mx-auto lg:mx-0"><div class="mb-6"><h1 class="text-[22px] font-bold text-slate-100 text-balance">话术生成</h1><p class="mt-1.5 text-[14px] text-slate-400 text-pretty">输入主题或素材，生成带表演指导的口播脚本。</p></div><div class="glass rounded-[10px] p-5 mb-5"><div class="mb-4"><label class="block text-[13px] font-semibold text-slate-400 mb-2">输入模式</label><div class="inline-flex bg-white/5 rounded-lg p-1 gap-0.5" id="mode-group"><button onclick="setMode('keyword')" id="mode-keyword" class="seg-btn seg-active px-4 py-2.5 rounded-md text-[13px] font-semibold min-h-[44px]">关键词模式</button><button onclick="setMode('material')" id="mode-material" class="seg-btn px-4 py-2.5 rounded-md text-[13px] font-semibold min-h-[44px]">素材模式</button></div></div><div class="mb-4"><label class="block text-[13px] font-semibold text-slate-400 mb-2">口播时长</label><div class="flex flex-wrap gap-0.5 bg-white/5 rounded-lg p-1" id="length-group"><button onclick="setLength('15s')" id="len-15s" class="seg-btn flex-1 text-center px-3 py-2.5 rounded-md text-[13px] font-semibold min-h-[44px]">15秒钩子</button><button onclick="setLength('60s')" id="len-60s" class="seg-btn seg-active flex-1 text-center px-3 py-2.5 rounded-md text-[13px] font-semibold min-h-[44px]">60秒短口播</button><button onclick="setLength('deep')" id="len-deep" class="seg-btn flex-1 text-center px-3 py-2.5 rounded-md text-[13px] font-semibold min-h-[44px]">3-5分钟讲解</button></div></div><div class="mb-4"><label for="keyword-input" class="block text-[13px] font-semibold text-slate-400 mb-2" id="input-label">输入关键词</label><input type="text" id="keyword-input" placeholder="例如：Agent、RAG、Prompt Engineering" class="input-field w-full h-11 px-4 text-[15px] rounded-lg" /><textarea id="material-input" placeholder="粘贴文章、视频文案或你的学习笔记..." class="input-field hidden w-full h-32 px-4 py-3 text-[15px] rounded-lg resize-none leading-relaxed"></textarea></div><div class="flex items-center gap-3 flex-wrap"><button onclick="generateScript()" id="gen-btn" disabled class="btn-cta inline-flex items-center gap-2 h-11 px-6 text-[13px] font-semibold rounded-lg whitespace-nowrap"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16 2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg><span>生成话术</span></button><span class="text-[13px] text-slate-500 tabular-nums" id="gen-hint">预计输出 60 秒短口播（约 180 字）</span></div><div id="input-warn" class="hidden mt-2.5 flex items-center gap-1.5 text-[13px] text-red-400"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg><span>请输入关键词后再生成</span></div></div><div id="output-empty" class="glass rounded-[10px] py-16 px-12 flex flex-col items-center justify-center text-center"><div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-4"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" x2="16" y1="13" y2="13"/><line x1="8" x2="16" y1="17" y2="17"/></svg></div><p class="text-[15px] font-semibold text-slate-400">生成的脚本将显示在这里</p><p class="text-[13px] text-slate-500 mt-1">在上方输入主题后点击生成话术</p></div><div id="output-error" class="hidden rounded-[10px] py-12 px-8 flex flex-col items-center justify-center text-center" style="background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.15);"><div class="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mb-4"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg></div><p class="text-[15px] font-semibold text-slate-200">生成失败，请重试</p><p class="text-[13px] text-slate-500 mt-1" id="error-detail">网络或服务异常，稍后再试</p><button onclick="generateScript()" class="btn-cta mt-4 inline-flex items-center gap-1.5 h-11 px-5 text-[13px] font-semibold rounded-lg min-h-[44px]"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg><span>重新生成</span></button></div><div id="output-loading" class="hidden glass rounded-[10px] p-5"><div class="flex items-center gap-2 mb-4"><div class="w-4 h-4 border-2 border-teal-500/20 border-t-teal-400 rounded-full animate-spin"></div><span class="text-[14px] text-slate-400 font-medium">正在生成口播脚本<span id="loading-topic"></span>...</span></div><div class="space-y-3"><div class="skeleton h-4 w-3/4"></div><div class="skeleton h-4 w-full"></div><div class="skeleton h-4 w-5/6"></div><div class="skeleton h-4 w-2/3"></div></div></div><div id="output-result" class="hidden"><div class="glass rounded-[10px] overflow-hidden"><div class="flex items-center justify-between px-5 py-3.5 border-b border-white/5 bg-white/[0.02]"><div class="flex items-center gap-2 min-w-0"><span class="text-[12px] font-semibold px-2 py-1 rounded bg-teal-500/15 text-teal-300 shrink-0" id="result-topic">Agent</span><span class="text-[12px] text-slate-600 hidden sm:inline">|</span><span class="text-[12px] text-slate-400 tabular-nums truncate" id="result-meta">60秒短口播</span></div><div class="flex items-center gap-2 shrink-0"><button onclick="copyScript(this)" class="btn-sec inline-flex items-center gap-1.5 h-9 min-h-[44px] px-3 text-[12px] font-semibold rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg><span>复制全文</span></button><button onclick="generateScript()" class="btn-sec inline-flex items-center gap-1.5 h-9 min-h-[44px] px-3 text-[12px] font-semibold rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg><span>重新生成</span></button></div></div><div class="p-5 space-y-4" id="script-segments"></div></div><div class="mt-4 rounded-[10px] p-4 flex items-start gap-3" style="background:rgba(45,212,191,0.05);border:1px solid rgba(45,212,191,0.12);"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2DD4BF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 mt-0.5"><polyline points="20 6 9 17 4 12"/></svg><div><p class="text-[14px] font-semibold text-teal-300">下一步</p><p class="text-[13px] text-slate-400 leading-relaxed mt-1">复制脚本后照着练习录制。注意停顿处稍停，重音标记加大力度，语气按提示调整。多练几遍直到脱稿，再打开剪映制作视频。</p></div></div></div></div></main>
+<main id="view-concept" class="view flex-1 p-4 sm:p-6 lg:p-8"><div class="max-w-3xl mx-auto lg:mx-0"><div class="mb-6"><h1 class="text-[22px] font-bold text-slate-100 text-balance">概念解释器</h1><p class="mt-1.5 text-[14px] text-slate-400 text-pretty">输入一个你常用但讲不清楚的AI概念，拆成三层帮你讲明白。</p></div><div class="glass rounded-[10px] p-5 mb-5"><label class="block text-[13px] font-semibold text-slate-400 mb-2">AI 概念</label><div class="flex gap-3"><input type="text" id="concept-input" placeholder="例如：Agent、RAG、Function Calling、Embedding" class="input-field flex-1 h-11 px-4 text-[15px] rounded-lg" /><button onclick="explainConcept()" id="explain-btn" disabled class="btn-cta inline-flex items-center gap-2 h-11 px-6 text-[13px] font-semibold rounded-lg whitespace-nowrap"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span>解释概念</span></button></div><div class="mt-3 flex flex-wrap gap-2"><span class="text-[12px] text-slate-500 self-center">试试：</span><button onclick="pickConcept('Agent')" class="btn-chip text-[13px] font-medium px-3 py-2 min-h-[36px] rounded-lg">Agent</button><button onclick="pickConcept('RAG')" class="btn-chip text-[13px] font-medium px-3 py-2 min-h-[36px] rounded-lg">RAG</button><button onclick="pickConcept('Prompt Engineering')" class="btn-chip text-[13px] font-medium px-3 py-2 min-h-[36px] rounded-lg">Prompt Engineering</button><button onclick="pickConcept('Embedding')" class="btn-chip text-[13px] font-medium px-3 py-2 min-h-[36px] rounded-lg">Embedding</button><button onclick="pickConcept('Function Calling')" class="btn-chip text-[13px] font-medium px-3 py-2 min-h-[36px] rounded-lg">Function Calling</button></div><div id="concept-warn" class="hidden mt-2.5 flex items-center gap-1.5 text-[13px] text-red-400"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg><span>请输入一个AI概念后再解释</span></div></div><div id="concept-empty" class="glass rounded-[10px] py-16 px-12 flex flex-col items-center justify-center text-center"><div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-4"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg></div><p class="text-[15px] font-semibold text-slate-400">概念解释将显示在这里</p><p class="text-[13px] text-slate-500 mt-1">在上方输入或选择一个概念后点击解释概念</p></div><div id="concept-error" class="hidden rounded-[10px] py-12 px-8 flex flex-col items-center justify-center text-center" style="background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.15);"><div class="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mb-4"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg></div><p class="text-[15px] font-semibold text-slate-200">解释失败，请重试</p><p class="text-[13px] text-slate-500 mt-1" id="concept-error-detail">网络或服务异常，稍后再试</p><button onclick="explainConcept()" class="btn-cta mt-4 inline-flex items-center gap-1.5 h-11 px-5 text-[13px] font-semibold rounded-lg min-h-[44px]"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg><span>重新解释</span></button></div><div id="concept-loading" class="hidden glass rounded-[10px] p-5"><div class="flex items-center gap-2 mb-4"><div class="w-4 h-4 border-2 border-teal-500/20 border-t-teal-400 rounded-full animate-spin"></div><span class="text-[14px] text-slate-400 font-medium">正在拆解概念...</span></div><div class="space-y-4"><div class="skeleton h-5 w-1/3"></div><div class="skeleton h-4 w-full"></div><div class="skeleton h-4 w-5/6"></div><div class="skeleton h-5 w-1/4 mt-4"></div><div class="skeleton h-4 w-full"></div><div class="skeleton h-4 w-3/4"></div></div></div><div id="concept-result" class="hidden space-y-4"><div class="flex items-center justify-between"><h2 class="text-[17px] font-semibold text-slate-100 text-balance" id="concept-title">Agent</h2><button onclick="convertToScript()" class="btn-sec inline-flex items-center gap-1.5 h-9 min-h-[44px] px-4 text-[12px] font-semibold text-teal-400 border-teal-500/20 rounded-lg">转为口播脚本</button></div><div id="concept-layers" class="space-y-4"></div></div></div></main>
+</div></div>
+<script>
+var currentMode='keyword',currentLength='60s';
+var apiKey='',apiUrl='https://api.deepseek.com/v1/chat/completions',apiModel='deepseek-chat';
+
+function loadSettings(){
+apiKey=localStorage.getItem('kb_api_key')||'';
+apiUrl=localStorage.getItem('kb_api_url')||'https://api.deepseek.com/v1/chat/completions';
+apiModel=localStorage.getItem('kb_api_model')||'deepseek-chat';
+var el=document.getElementById('api-key');if(el)el.value=apiKey;
+var eu=document.getElementById('api-url');if(eu)eu.value=apiUrl;
+var em=document.getElementById('api-model');if(em)em.value=apiModel;
+if(!apiKey){var s=document.getElementById('settings-status');if(s){s.textContent='未设置密钥，仅可用5个演示概念';s.className='text-[12px] text-slate-500 text-center';}}
+}
+function saveSettings(){
+apiKey=document.getElementById('api-key').value.trim();
+apiUrl=document.getElementById('api-url').value.trim()||'https://api.deepseek.com/v1/chat/completions';
+apiModel=document.getElementById('api-model').value.trim()||'deepseek-chat';
+localStorage.setItem('kb_api_key',apiKey);
+localStorage.setItem('kb_api_url',apiUrl);
+localStorage.setItem('kb_api_model',apiModel);
+var s=document.getElementById('settings-status');
+if(apiKey){s.textContent='已保存，现在可以解释任何概念';s.className='text-[12px] text-teal-400 text-center';}
+else{s.textContent='密钥为空，仅可用演示数据';s.className='text-[12px] text-slate-500 text-center';}
+setTimeout(function(){s.textContent='';},4000);
+}
+function toggleSettings(){
+var p=document.getElementById('settings-panel');
+if(p)p.classList.toggle('hidden');
+}
+
+async function callAI(messages){
+if(!apiKey)throw new Error('NO_API_KEY');
+var res=await fetch(apiUrl,{
+method:'POST',
+headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},
+body:JSON.stringify({model:apiModel,messages:messages,temperature:0.7,max_tokens:2000})
+});
+if(!res.ok){var e=await res.text();throw new Error('API错误:'+res.status+' '+e.substring(0,100));}
+var data=await res.json();
+return data.choices[0].message.content;
+}
+
+function extractJSONArray(text){
+var clean=text.replace(/```[a-z]*/g,'').replace(/```/g,'').trim();
+var start=clean.indexOf('[');
+var end=clean.lastIndexOf(']');
+if(start>=0&&end>start)clean=clean.substring(start,end+1);
+return JSON.parse(clean);
+}
+
+function getScriptInput(){
+return currentMode==='keyword'?document.getElementById('keyword-input').value.trim():document.getElementById('material-input').value.trim();
+}
+function updateGenerateButton(){
+var btn=document.getElementById('gen-btn');
+var warn=document.getElementById('input-warn');
+var hasInput=getScriptInput().length>0;
+btn.disabled=!hasInput;
+if(hasInput)warn.classList.add('hidden');
+}
+function updateExplainButton(){
+var btn=document.getElementById('explain-btn');
+var warn=document.getElementById('concept-warn');
+var hasInput=document.getElementById('concept-input').value.trim().length>0;
+btn.disabled=!hasInput;
+if(hasInput)warn.classList.add('hidden');
+}
+function handleGlobalKey(e){
+if(e.key==='Escape'){var a=document.querySelector('.view.active');if(a&&a.id!=='view-home')switchView('home');}
+}
+function pickConcept(name){
+document.getElementById('concept-input').value=name;
+updateExplainButton();
+explainConcept();
+}
+function switchView(name){
+document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
+document.getElementById('view-'+name).classList.add('active');
+document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
+var nb=document.getElementById('nav-'+name);if(nb)nb.classList.add('active');
+document.querySelectorAll('.nav-mobile').forEach(function(n){n.classList.remove('seg-active');});
+var mb=document.querySelector('.nav-mobile[data-view="'+name+'"]');if(mb)mb.classList.add('seg-active');
+window.scrollTo(0,0);
+}
+function hideAllScriptOutputs(){['output-empty','output-loading','output-result','output-error'].forEach(function(id){document.getElementById(id).classList.add('hidden');});}
+function hideAllConceptOutputs(){['concept-empty','concept-loading','concept-result','concept-error'].forEach(function(id){document.getElementById(id).classList.add('hidden');});}
+function setMode(mode){
+currentMode=mode;
+var kw=document.getElementById('mode-keyword'),mat=document.getElementById('mode-material'),kwi=document.getElementById('keyword-input'),mti=document.getElementById('material-input'),lab=document.getElementById('input-label');
+if(mode==='keyword'){
+kw.className='seg-btn seg-active px-4 py-2.5 rounded-md text-[13px] font-semibold min-h-[44px]';
+mat.className='seg-btn px-4 py-2.5 rounded-md text-[13px] font-semibold min-h-[44px]';
+kwi.classList.remove('hidden');mti.classList.add('hidden');lab.textContent='输入关键词';
+}else{
+mat.className='seg-btn seg-active px-4 py-2.5 rounded-md text-[13px] font-semibold min-h-[44px]';
+kw.className='seg-btn px-4 py-2.5 rounded-md text-[13px] font-semibold min-h-[44px]';
+mti.classList.remove('hidden');kwi.classList.add('hidden');lab.textContent='粘贴素材';
+}
+updateHint();updateGenerateButton();
+}
+function setLength(len){
+currentLength=len;
+['15s','60s','deep'].forEach(function(l){
+var b=document.getElementById('len-'+l);
+if(l===len){b.className='seg-btn seg-active flex-1 text-center px-3 py-2.5 rounded-md text-[13px] font-semibold min-h-[44px]';}
+else{b.className='seg-btn flex-1 text-center px-3 py-2.5 rounded-md text-[13px] font-semibold min-h-[44px]';}
+});
+updateHint();
+}
+function updateHint(){
+var h=document.getElementById('gen-hint');
+var ln={'15s':'约 30-50 字','60s':'约 180 字','deep':'约 800-1200 字'};
+var nm={'15s':'15秒钩子','60s':'60秒短口播','deep':'3-5分钟深度讲解'};
+h.textContent='预计输出 '+nm[currentLength]+'（'+ln[currentLength]+'）';
+}
+
+var mockScripts={'keyword_60s':{topic:'Agent',meta:'60秒短口播',segments:[
+{type:'hook',typeName:'钩子',color:'orange',text:'你有没有想过，为什么有时候AI帮你做事特别聪明，有时候又特别笨？',markers:['语气:好奇','停顿','重音:特别聪明 · 特别笨']},
+{type:'explain',typeName:'解释',color:'teal',text:'区别可能就在一个词——Agent。普通AI对话是你问一句它答一句，像个被动答题的学生。而Agent是主动干活的，你给它一个目标，它自己拆任务、调工具、一步步完成，像个能独立干活的员工。',markers:['语气:清晰','停顿','重音:主动 · 被动']},
+{type:'example',typeName:'举例',color:'slate',text:'比如你说"帮我查一下今天的新闻"，普通AI只能生成一段文字。但Agent会打开浏览器、搜索、筛选、整理成摘要给你。',markers:['语气:轻松','停顿']},
+{type:'summary',typeName:'总结',color:'teal',text:'所以记住：AI是答题器，Agent是执行者。这就是Agent的本质。',markers:['语气:坚定','重音:答题器 · 执行者','情绪:确信']}
+]}};
+
+function generateScript(){
+var input=getScriptInput();
+if(!input){document.getElementById('input-warn').classList.remove('hidden');if(currentMode==='keyword')document.getElementById('keyword-input').focus();else document.getElementById('material-input').focus();return;}
+var btn=document.getElementById('gen-btn');
+btn.disabled=true;
+btn.innerHTML='<div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div><span>生成中...</span>';
+hideAllScriptOutputs();
+document.getElementById('output-loading').classList.remove('hidden');
+document.getElementById('loading-topic').textContent=' "'+(input.length>20?input.substring(0,20)+'...':input)+'"';
+
+if(!apiKey){
+setTimeout(function(){
+document.getElementById('output-loading').classList.add('hidden');
+var topic=currentMode==='keyword'?input:'素材改写';
+var script=mockScripts.keyword_60s;
+document.getElementById('result-topic').textContent=topic.length>30?topic.substring(0,30)+'...':topic;
+document.getElementById('result-meta').textContent=script.meta;
+renderSegments(script.segments);
+document.getElementById('output-result').classList.remove('hidden');
+btn.disabled=false;btn.innerHTML=genBtnHTML();updateGenerateButton();
+},800);
+return;
+}
+
+var lenNames={'15s':'15秒','60s':'60秒','deep':'3-5分钟'};
+var lenWords={'15s':'30-50字','60s':'约180字','deep':'约800-1200字'};
+var sys='你是一个抖音口播文案专家，擅长把AI知识用大白话讲清楚。';
+var usr=(currentMode==='keyword'?'主题：'+input:'素材：'+input)+'\n\n请生成一段'+lenNames[currentLength]+'（'+lenWords[currentLength]+'）的口播脚本。\n\n要求：\n1. 分成3-4段，每段标注功能类型（钩子/解释/举例/总结）\n2. 每段附带表演指导标记（语气:xxx、停顿、重音:xxx、情绪:xxx）\n3. 语言口语化，像在跟朋友聊天\n4. 用AI学习者成长的视角\n\n请严格用以下JSON格式返回（不要加markdown代码块标记）：\n[{"type":"hook","typeName":"钩子","color":"orange","text":"文案","markers":["语气:好奇","停顿"]},{"type":"explain","typeName":"解释","color":"teal","text":"文案","markers":["语气:清晰"]},{"type":"summary","typeName":"总结","color":"teal","text":"文案","markers":["语气:坚定"]}]\n\ncolor可选值：orange(钩子)、teal(解释/总结)、slate(举例)。';
+
+callAI([{role:'system',content:sys},{role:'user',content:usr}]).then(function(text){
+var segments;
+try{segments=extractJSONArray(text);}catch(e){throw new Error('解析失败');}
+document.getElementById('output-loading').classList.add('hidden');
+var topic=currentMode==='keyword'?input:'素材改写';
+document.getElementById('result-topic').textContent=topic.length>30?topic.substring(0,30)+'...':topic;
+document.getElementById('result-meta').textContent=lenNames[currentLength]+'短口播';
+renderSegments(segments);
+document.getElementById('output-result').classList.remove('hidden');
+btn.disabled=false;btn.innerHTML=genBtnHTML();updateGenerateButton();
+}).catch(function(err){
+document.getElementById('output-loading').classList.add('hidden');
+hideAllScriptOutputs();
+var msg=err.message==='NO_API_KEY'?'未设置API密钥，请点击AI设置':err.message.indexOf('解析失败')>=0?'AI返回格式异常，请重试':err.message;
+document.getElementById('error-detail').textContent=msg;
+document.getElementById('output-error').classList.remove('hidden');
+btn.disabled=false;btn.innerHTML=genBtnHTML();updateGenerateButton();
+});
+}
+function genBtnHTML(){
+return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16 2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg><span>生成话术</span>';
+}
+function markerClass(m){
+if(m.indexOf('语气')===0)return'marker-tone';
+if(m.indexOf('停顿')===0)return'marker-pause';
+if(m.indexOf('重音')===0)return'marker-emphasis';
+if(m.indexOf('情绪')===0)return'marker-emotion';
+return'marker-tone';
+}
+function renderSegments(segments){
+var c=document.getElementById('script-segments');
+var cm={orange:'bar-orange',teal:'bar-teal',slate:'bar-slate'};
+var tb={orange:'badge-orange',teal:'badge-teal',slate:'badge-slate'};
+c.innerHTML=segments.map(function(seg){
+return '<div class="seg-enter seg-divider flex gap-3 pb-4 mb-4 last:border-0 last:mb-0"><div class="segment-bar '+cm[seg.color]+'"></div><div class="flex-1 min-w-0"><div class="flex items-center gap-2 mb-2"><span class="text-[12px] font-semibold px-2 py-1 rounded '+tb[seg.color]+'">'+seg.typeName+'</span></div><p class="text-[15px] text-slate-100 leading-[1.7]">'+seg.text+'</p><div class="flex flex-wrap gap-1.5 mt-2.5">'+seg.markers.map(function(m){return '<span class="marker '+markerClass(m)+'">'+m+'</span>';}).join('')+'</div></div></div>';
+}).join('');
+}
+function copyScript(btn){
+if(!btn)btn=event.currentTarget;
+var segs=document.querySelectorAll('#script-segments > div');
+var text='';
+segs.forEach(function(el){
+var t=el.querySelector('span');var typ=t?t.textContent:'';
+var p=el.querySelector('p');var body=p?p.textContent:'';
+var ms=[];el.querySelectorAll('.marker').forEach(function(m){ms.push(m.textContent);});
+text+='【'+typ+'】'+body+'\n'+ms.join(' | ')+'\n\n';
+});
+text=text.trim();
+navigator.clipboard.writeText(text).then(function(){
+var o=btn.innerHTML;
+btn.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>已复制</span>';
+setTimeout(function(){btn.innerHTML=o;},2000);
+}).catch(function(){
+var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();
+try{document.execCommand('copy');}catch(e){}
+document.body.removeChild(ta);
+var o=btn.innerHTML;
+btn.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>已复制</span>';
+setTimeout(function(){btn.innerHTML=o;},2000);
+});
+}
+
+var mockConcepts={
+'Agent':{layers:[{title:'是什么',icon:'circle',body:'Agent 是一个能自主完成任务的AI程序。它不只是回答问题，而是接收一个目标后，自己规划步骤、调用工具、检查结果，直到任务完成。你可以理解为：从"问答机器"升级成了"数字员工"。'},{title:'为什么要用',icon:'target',body:'因为现实任务不是一句话能答完的。比如"帮我整理今天的AI新闻"，需要搜索、筛选、总结、排版——这些步骤之间的衔接和判断，靠人工一步步操作太慢。Agent把这些步骤自动化了。'},{title:'背后逻辑',icon:'git-branch',body:'Agent 的核心循环是：感知（接收目标）→ 思考（LLM 决定下一步做什么）→ 行动（调用工具/API 执行）→ 观察（检查结果）→ 再思考（决定是否完成或继续）。这个循环叫 ReAct 模式，就是"推理+行动"交替进行。'}]},
+'RAG':{layers:[{title:'是什么',icon:'circle',body:'RAG（Retrieval-Augmented Generation）是一种让AI先查资料再回答的技术。它不是靠模型自己记住所有知识，而是在回答之前先从你的知识库里检索相关内容，然后基于检索到的内容生成答案。'},{title:'为什么要用',icon:'target',body:'因为大模型有两个硬伤：知识有截止日期，而且会"一本正经地胡说"（幻觉）。RAG让AI回答有据可查，不用重新训练模型就能让它掌握最新、最专业的知识。'},{title:'背后逻辑',icon:'git-branch',body:'RAG 的流程是：文档切片 → 每片转成向量（Embedding）存入向量数据库 → 用户提问时，把问题也转成向量 → 在数据库里找最相似的片段 → 把找到的片段拼进 Prompt → LLM 基于这些片段生成回答。'}]},
+'Prompt Engineering':{layers:[{title:'是什么',icon:'circle',body:'Prompt Engineering 是写好AI指令的技术。它不是"跟AI聊天"，而是用结构化的方式描述任务、约束条件、输出格式，让AI稳定地给出你要的结果。'},{title:'为什么要用',icon:'target',body:'因为同样的AI模型，写得好和写得差的指令，结果质量天差地别。好的 Prompt 能让普通模型发挥出顶级水平，差的 Prompt 会让顶级模型输出垃圾。'},{title:'背后逻辑',icon:'git-branch',body:'核心原理是：LLM 是在"续写文本"，它根据你给的上下文预测最可能的下一个词。Prompt 就是你给的上下文。上下文越清晰、结构越明确，模型的预测方向就越准。常用技巧：角色设定、Few-shot 示例、思维链（Chain of Thought）。'}]},
+'Embedding':{layers:[{title:'是什么',icon:'circle',body:'Embedding 是把文字变成一串数字（向量）的技术。这串数字代表了文字的"语义"——意思相近的文字，转出来的数字也相近。机器不认识字，只认识数字，Embedding 就是文字和数字之间的翻译器。'},{title:'为什么要用',icon:'target',body:'因为很多任务需要"理解意思"而不只是"匹配关键词"。比如搜"苹果"时，系统要知道你是说水果还是公司。Embedding 让机器能判断语义相似度，这是搜索、推荐、RAG 的基础能力。'},{title:'背后逻辑',icon:'git-branch',body:'Embedding 模型在大规模文本上训练，学会了把意思相近的词映射到空间中相近的位置。两个向量的距离（余弦相似度）就代表两段文字的语义相似度。距离越近，意思越相关。'}]},
+'Function Calling':{layers:[{title:'是什么',icon:'circle',body:'Function Calling 是让AI模型能调用外部函数/工具的能力。模型本身不能上网、不能查数据库，但通过 Function Calling，模型可以告诉你"我需要调用这个函数"，你的代码执行后把结果喂回给它。'},{title:'为什么要用',icon:'target',body:'因为模型的知识是静态的，能力是封闭的。Function Calling 打开了模型的"手和脚"——让它能查实时天气、操作数据库、调用API，从"只会说"变成"能做事"。这是 Agent 的技术基础。'},{title:'背后逻辑',icon:'git-branch',body:'你在 Prompt 里告诉模型有哪些函数可用（名称、参数、描述）。模型理解用户意图后，输出一个结构化的函数调用请求（JSON 格式）。你的代码执行这个函数，把结果返回给模型，模型再基于结果继续对话。'}]}
+};
+
+var iconMap={
+'circle':'<circle cx="12" cy="12" r="10"/>',
+'target':'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+'git-branch':'<line x1="6" x2="6" y1="3" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/>'
+};
+
+function explainConcept(){
+var input=document.getElementById('concept-input').value.trim();
+if(!input){document.getElementById('concept-warn').classList.remove('hidden');document.getElementById('concept-input').focus();return;}
+var btn=document.getElementById('explain-btn');
+btn.disabled=true;
+btn.innerHTML='<div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div><span>解释中...</span>';
+hideAllConceptOutputs();
+document.getElementById('concept-loading').classList.remove('hidden');
+
+if(!apiKey){
+var data=mockConcepts[input];
+setTimeout(function(){
+document.getElementById('concept-loading').classList.add('hidden');
+if(!data){
+hideAllConceptOutputs();
+document.getElementById('concept-error-detail').textContent='未设置API密钥，且「'+input+'」不在演示词库中。请点击左侧「AI设置」填入你的API密钥，之后可以解释任何概念。';
+document.getElementById('concept-error').classList.remove('hidden');
+}else{
+document.getElementById('concept-title').textContent=input;
+renderConceptLayers(data.layers);
+document.getElementById('concept-result').classList.remove('hidden');
+}
+btn.disabled=false;btn.innerHTML=explainBtnHTML();updateExplainButton();
+},800);
+return;
+}
+
+var sys='你是一个AI概念解释专家，擅长用大白话把技术概念讲清楚。';
+var usr='请解释概念「'+input+'」，分三层回答：\n1. 是什么：用一句话说清本质，再补充1-2句解释。用类比帮助理解。\n2. 为什么要用：说明它解决什么问题，不用它会怎样。\n3. 背后逻辑：讲清楚它的工作原理，用箭头表示流程。\n\n用中文回答，语言要口语化、接地气，像一个正在学AI的人讲给朋友听。每层100-150字。\n\n请严格用以下JSON格式返回（不要加markdown代码块标记）：\n[{"title":"是什么","body":"..."},{"title":"为什么要用","body":"..."},{"title":"背后逻辑","body":"..."}]';
+
+callAI([{role:'system',content:sys},{role:'user',content:usr}]).then(function(text){
+var layers;
+try{layers=extractJSONArray(text);}catch(e){throw new Error('解析失败');}
+document.getElementById('concept-loading').classList.add('hidden');
+document.getElementById('concept-title').textContent=input;
+renderConceptLayers(layers);
+document.getElementById('concept-result').classList.remove('hidden');
+btn.disabled=false;btn.innerHTML=explainBtnHTML();updateExplainButton();
+}).catch(function(err){
+document.getElementById('concept-loading').classList.add('hidden');
+hideAllConceptOutputs();
+var msg=err.message==='NO_API_KEY'?'未设置API密钥':err.message.indexOf('解析失败')>=0?'AI返回格式异常，请重试':err.message;
+document.getElementById('concept-error-detail').textContent=msg;
+document.getElementById('concept-error').classList.remove('hidden');
+btn.disabled=false;btn.innerHTML=explainBtnHTML();updateExplainButton();
+});
+}
+function explainBtnHTML(){
+return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span>解释概念</span>';
+}
+function renderConceptLayers(layers){
+var c=document.getElementById('concept-layers');
+c.innerHTML=layers.map(function(layer,i){
+var ic=iconMap[layer.icon||'circle']||iconMap['circle'];
+return '<div class="glass rounded-[10px] p-5"><div class="flex items-center gap-2.5 mb-3"><div class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style="background:linear-gradient(135deg,rgba(45,212,191,0.15),rgba(99,102,241,0.1));border:1px solid rgba(45,212,191,0.12);"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2DD4BF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+ic+'</svg></div><h3 class="text-[14px] font-semibold text-slate-200">'+layer.title+'</h3></div><p class="text-[15px] text-slate-300 leading-[1.7] pl-0 sm:pl-[38px]">'+layer.body+'</p></div>';
+}).join('');
+}
+function convertToScript(){
+var c=document.getElementById('concept-title').textContent;
+document.getElementById('concept-input').value=c;
+switchView('script');
+setMode('keyword');
+document.getElementById('keyword-input').value=c;
+updateGenerateButton();
+setTimeout(function(){generateScript();},100);
+}
+
+// Init
+document.querySelector('.nav-mobile[data-view="home"]').classList.add('seg-active');
+document.getElementById('keyword-input').addEventListener('input',updateGenerateButton);
+document.getElementById('material-input').addEventListener('input',updateGenerateButton);
+document.getElementById('keyword-input').addEventListener('keydown',function(e){if(e.key==='Enter')generateScript();});
+document.getElementById('concept-input').addEventListener('input',updateExplainButton);
+document.getElementById('concept-input').addEventListener('keydown',function(e){if(e.key==='Enter')explainConcept();});
+loadSettings();
+
+</script>
+</body>
+</html>
